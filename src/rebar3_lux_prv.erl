@@ -86,7 +86,7 @@ do(State) ->
             %% Build lux command
             VerboseFlag =
                 case Verbose of
-                    true -> " --verbose";
+                    true -> " -v";
                     false -> ""
                 end,
             Cmd = LuxBin ++ VerboseFlag ++ " " ++ Target,
