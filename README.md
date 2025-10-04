@@ -1,5 +1,7 @@
 # rebar3_lux
 
+**NOTE: in development, not working atm...**
+
 A rebar3 plugin for running [Lux](https://github.com/hawk/lux) tests as
 part of your Erlang/OTP build process.
 
@@ -16,7 +18,7 @@ Add to your `rebar.config`:
 
 ```erlang
 {plugins, [
-  {rebar3_lux, ".*", {git, "git@github.com:etnt/rebar3_lux.git", {branch, "main"}}}]}.
+  {rebar3_lux, ".*", {git, "https://github.com/etnt/rebar3_lux.git", {branch, "main"}}}]}.
 ```
 
 Then run:
