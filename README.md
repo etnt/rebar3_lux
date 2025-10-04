@@ -16,7 +16,7 @@ Add to your `rebar.config`:
 
 ```erlang
 {plugins, [
-  {rebar3_lux, ".*", {git, "https://github.com/NobbZ/rebar3_autotest.git", {branch, "main"}}}]}.
+  {rebar3_lux, ".*", {git, "git@github.com:etnt/rebar3_lux.git", {branch, "main"}}}]}.
 ```
 
 Then run:
