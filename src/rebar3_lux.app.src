@@ -1,0 +1,13 @@
+{application, rebar3_lux,
+  [{description, "A rebar3 plugin to run Lux tests."},
+    {vsn, "0.0.1"},
+    {registered, []},
+    {applications,
+      [kernel,
+        stdlib
+      ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["MPL-2.0"]},
+    {links, [{"Github", "https://github.com/etnt/rebar3_lux"}]}
+  ]}.
