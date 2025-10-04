@@ -9,7 +9,7 @@
 -define(DEPS, []).
 -define(OPTS, []).
 -define(INCLUDE_FILE_PATTERNS, [
-  "\\A.+\\.lux\\z"
+    "\\A.+\\.lux\\z"
 ]).
 
 %% ===================================================================
@@ -17,19 +17,24 @@
 %% ===================================================================
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
-  Provider = providers:create([
-    {name, ?PROVIDER},            % The 'user friendly' name of the task
-    {module, ?MODULE},            % The module implementation of the task
-    {bare, true},                 % The task can be run by the user, always true
-    {deps, ?DEPS},                % The list of dependencies
-    {example, "rebar3 lux"},      % How to use the plugin
-    {opts, ?OPTS},                % list of options understood by the plugin
-    {short_desc, ?DESCRIPTION},
-    {desc, ?DESCRIPTION},
-    {profiles, [test]}
-  ]),
-  {ok, rebar_state:add_provider(State, Provider)}.
-
+    Provider = providers:create([
+        % The 'user friendly' name of the task
+        {name, ?PROVIDER},
+        % The module implementation of the task
+        {module, ?MODULE},
+        % The task can be run by the user, always true
+        {bare, true},
+        % The list of dependencies
+        {deps, ?DEPS},
+        % How to use the plugin
+        {example, "rebar3 lux"},
+        % list of options understood by the plugin
+        {opts, ?OPTS},
+        {short_desc, ?DESCRIPTION},
+        {desc, ?DESCRIPTION},
+        {profiles, [test]}
+    ]),
+    {ok, rebar_state:add_provider(State, Provider)}.
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
@@ -40,7 +45,6 @@ do(State) ->
     end.
 
 do_lux(State) ->
-
     %% Parse command line options
     {Args, _} = rebar_state:command_parsed_args(State),
     Suite = proplists:get_value(suite, Args, "."),
@@ -97,3 +101,7 @@ receive_port_output(Port) ->
             rebar_api:debug("Unexpected message: ~p", [Other]),
             receive_port_output(Port)
     end.
+
+-spec format_error(any()) -> iolist().
+format_error(Reason) ->
+    io_lib:format("~p", [Reason]).
