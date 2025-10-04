@@ -4,10 +4,26 @@
 
 -export([init/1, do/1, format_error/1]).
 
--define(DESCRIPTION, "A rebar3 plugin to run Lux tests.").
+-define(DESCRIPTION,
+    "A rebar3 plugin to run Lux tests.\n\n"
+    "This plugin allows you to run Lux test suites from your rebar3 project.\n"
+    "It automatically locates the lux binary from the plugin dependencies\n"
+    "and executes tests from the test/lux directory.\n\n"
+    "Usage:\n"
+    "  rebar3 lux                    - Run all .lux tests\n"
+    "  rebar3 lux --module=foo       - Run only foo.lux test\n"
+    "  rebar3 lux --verbose          - Run with verbose output\n"
+    "  rebar3 lux -m bar -v          - Run bar.lux with verbose output\n\n"
+    "The plugin will first try to use the lux binary from the plugin\n"
+    "dependency (_build/default/plugins/lux/bin/lux), and fall back to\n"
+    "using 'lux' from your PATH if the dependency binary is not found."
+).
 -define(PROVIDER, lux).
 -define(DEPS, []).
--define(OPTS, []).
+-define(OPTS, [
+    {module, $m, "module", string, "Run a specific .lux test module"},
+    {verbose, $v, "verbose", boolean, "Enable verbose output"}
+]).
 -define(INCLUDE_FILE_PATTERNS, [
     "\\A.+\\.lux\\z"
 ]).
@@ -28,7 +44,7 @@ init(State) ->
         % The list of dependencies
         {deps, ?DEPS},
         % How to use the plugin
-        {example, "rebar3 lux"},
+        {example, "rebar3 lux [--module=foo] [--verbose]"},
         % list of options understood by the plugin
         {opts, ?OPTS},
         {short_desc, ?DESCRIPTION},
@@ -41,8 +57,22 @@ init(State) ->
 do(State) ->
     %% Parse command line options
     {Args, _} = rebar_state:command_parsed_args(State),
-    Suite = proplists:get_value(suite, Args, "."),
+    Module = proplists:get_value(module, Args),
     Verbose = proplists:get_bool(verbose, Args),
+
+    %% Determine what to run: specific module or default suite
+    Target =
+        case Module of
+            undefined ->
+                % Default: run all tests in current directory
+                ".";
+            ModuleName ->
+                %% Ensure .lux extension
+                case filename:extension(ModuleName) of
+                    ".lux" -> ModuleName;
+                    _ -> ModuleName ++ ".lux"
+                end
+        end,
 
     %% Find the lux binary path
     LuxBin = find_lux_binary(),
@@ -59,7 +89,7 @@ do(State) ->
                     true -> " --verbose";
                     false -> ""
                 end,
-            Cmd = LuxBin ++ VerboseFlag ++ " " ++ Suite,
+            Cmd = LuxBin ++ VerboseFlag ++ " " ++ Target,
 
             case LuxBin of
                 "lux" ->
@@ -67,7 +97,16 @@ do(State) ->
                 _ ->
                     rebar_api:info("Using lux binary: ~s", [LuxBin])
             end,
-            rebar_api:info("Running: ~s (in ~s)", [Cmd, LuxDir]),
+
+            case Module of
+                undefined ->
+                    rebar_api:info("Running all lux tests in ~s", [LuxDir]);
+                _ ->
+                    rebar_api:info("Running lux test: ~s (in ~s)", [
+                        Target, LuxDir
+                    ])
+            end,
+            rebar_api:info("Command: ~s", [Cmd]),
 
             %% Execute lux
             case run_cmd(Cmd) of
