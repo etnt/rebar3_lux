@@ -38,13 +38,6 @@ init(State) ->
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
-    %% Determine which provider is being called based on the command
-    case rebar_state:command(State) of
-        lux -> do_lux(State);
-        Cmd -> {error, Cmd}
-    end.
-
-do_lux(State) ->
     %% Parse command line options
     {Args, _} = rebar_state:command_parsed_args(State),
     Suite = proplists:get_value(suite, Args, "."),
